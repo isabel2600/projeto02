@@ -77,7 +77,7 @@ Garanta que os três arquivos desse diretório estão na raiz do seu projeto. Ex
   <img src="./images/06-directory.png" width=35% height=35%>
 </p>
 
-Para subir todo o ambiente basta utilizar um comando:
+Para subir todo o ambiente basta utilizar um comando dentro do diretório do projeto:
 ```
 docker-compose up -d --build
 ```

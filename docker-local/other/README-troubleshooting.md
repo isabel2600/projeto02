@@ -1,4 +1,4 @@
-## Troubleshooting
+# Troubleshooting
 Se você quiser ver os logs durante a execução, basta retirar a opção **-d**.
 ```
 docker-compose up --build
@@ -19,27 +19,11 @@ O **docker-compose** também tem seu comando para logs.
 ```
 docker-compose logs --follow
 ```
-## Outras opções
+## Shell interativo
+Para "entrar" dentro do container:
+```
+docker exec -it id_ou_nome_do_container sh
+```
+Esse comando irá executar o shell interativo dentro do seu container. É possível utilizar comando Linux/Unix básicos em praticamente todas as imagens. Navegar por diretórios, visualizar e editar arquivos de texto, etc.
 
-Parar os containers sem removê-los:
-```
-docker-compose stop
-```
-Reiniciar os containers parados com comando **stop**:
-```
-docker-compose start
-```
-Reiniciar container em execução:
-```
-docker-compose restart
-```
-## Limpando imagens criadas
-
-Para visualizar as imagens em sua máquina local:
-```
-docker images
-```
-Para remover uma ou mais imagens
-```
-docker rmi id_ou_nome_da_imagem
-```
+Saia normalmente como um shell comum com a opção **exit**.
