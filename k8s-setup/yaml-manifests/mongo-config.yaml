@@ -1,0 +1,178 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mongo-ns
+  labels: 
+    name: mongo-ns
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-configmap
+  namespace: mongo-ns
+data:
+  db_host: mongodb-service.mongo-ns
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongodb-secret
+  namespace: mongo-ns
+type: Opaque
+data:
+  username: dXNlcm5hbWU=
+  password: cGFzc3dvcmQ=
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: mongodb-pvc
+     namespace: mongo-ns
+spec:
+     accessModes:
+     - ReadWriteOnce
+     volumeMode: Filesystem
+     resources:
+       requests:
+         storage: 1Gi
+     storageClassName: default-storage-class
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  namespace: mongo-ns
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: username
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: password
+        - name: MONGO_INITDB_DATABASE
+          value: "joao-tartaglia-db"
+      volumes:
+        - name: mongo-data
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+              
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: mongo-ns
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  namespace: mongo-ns
+  labels:
+    app: mongo-express
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: username
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: password
+        - name: ME_CONFIG_MONGODB_SERVER 
+          valueFrom: 
+            configMapKeyRef:
+              name: mongodb-configmap
+              key: db_host
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+  namespace: mongo-ns
+spec:
+  selector:
+    app: mongo-express
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: mongo-ingress
+  namespace: mongo-ns
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: mongo-db.luby.ml
+      http:
+        paths:
+          - path: 
+            backend:
+              serviceName: mongo-express-service
+              servicePort: 8081

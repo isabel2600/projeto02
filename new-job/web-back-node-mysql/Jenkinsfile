@@ -1,0 +1,138 @@
+pipeline {
+  options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+  }
+
+  environment {
+    REGISTRY = '655389356257.dkr.ecr.us-east-1.amazonaws.com'
+    REGION = 'us-east-1'
+  }
+
+  agent {
+    label 'worker'
+  }
+
+  stages {
+
+    stage('Check S3 bucket') {
+      steps {
+        script {
+          sh '''
+            if aws s3 ls | grep ${JOB_NAME} >/dev/null 2>&1 ; then
+              aws s3 cp s3://${JOB_NAME}/.env .
+            else
+              echo "Nenhum bucket encontrado"
+            fi
+            '''
+        }
+      }
+    }
+
+    stage('Check ECR') {
+      steps {
+        script {
+          sh '''
+            if aws ecr describe-repositories --repository-names ${JOB_NAME} >/dev/null 2>&1 ; then
+              echo "Repositorio ECR ja existe"
+            else
+              echo "Criando novo repositorio..."
+              aws ecr create-repository --repository-name ${JOB_NAME}
+              aws ecr put-lifecycle-policy --repository-name ${JOB_NAME} --lifecycle-policy-text "file://lifecycle-policy.json"
+            fi
+            '''
+        }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        script {
+          sh 'docker build -t ${JOB_NAME} --no-cache --pull .'
+        }
+      }
+    }
+
+    // esse stage pode ser alterado para cada projeto
+    // segue um exemplo de um "smoke test" simples
+    // tentar a execução do container e verificar os logs
+    stage('Test') {
+      steps {
+        script {
+          // sh 'docker run -d --name ${JOB_NAME}'
+          // sh 'sleep 1m'
+          // sh 'docker logs ${JOB_NAME}'
+          // sh 'docker stop ${JOB_NAME}'
+          // sh 'docker rm ${JOB_NAME}'
+          sh 'echo "Nenhum teste para ser executado."'
+        }
+      }
+    }
+
+    stage('Push') {
+      steps {
+        script {
+          sh 'aws ecr get-login-password --region ${REGION} | docker login --username ${DOCKER_USER} --password-stdin ${REGISTRY}'
+          sh 'docker tag ${JOB_NAME}:latest ${REGISTRY}/${JOB_NAME}:${BUILD_NUMBER}'
+          sh 'docker push ${REGISTRY}/${JOB_NAME}:${BUILD_NUMBER}'
+        }
+      }
+    }
+
+      stage('Check cluster') {
+        steps {
+          script {
+          sh 'kubectl cluster-info'
+          sh 'kubectl get nodes'
+        }
+      }
+    }
+
+      stage('Deploy') {
+        steps {
+          script {
+            sh '''
+              ECR_CRED=$(jq -r '. | @base64' ~/.docker/config.json)
+
+              sed -e "s;%JOB_NAME%;${JOB_NAME};g" \
+                  -e "s;%ECR_CRED%;${ECR_CRED};g" \
+                  -e "s;%REGISTRY%;${REGISTRY};g" \
+                  -e "s;%BUILD_NUMBER%;${BUILD_NUMBER};g" \
+                  k8s-template.yaml > k8s-${JOB_NAME}.yaml
+
+              kubectl apply -f k8s-${JOB_NAME}.yaml
+            '''
+        }
+      }
+    }
+  }
+
+  post {
+    cleanup {
+      script {
+         try {
+            sh 'docker stop $(docker ps -q) > /dev/null 2>&1'
+          } catch (Exception e) {
+            echo 'Exception occurred: ' + e.toString()
+          }
+
+         try {
+            sh 'docker rm $(docker ps -a -q) > /dev/null 2>&1'
+          } catch (Exception e) {
+            echo 'Exception occurred: ' + e.toString()
+          }
+
+         try {
+            sh 'docker rmi -f $(docker images -q)'
+          } catch (Exception e) {
+            echo 'Exception occurred: ' + e.toString()
+          }   
+
+         try {
+            sh 'docker system prune -a -f --volumes'
+          } catch (Exception e) {
+            echo 'Exception occurred: ' + e.toString()
+          }
+      }
+    }
+  }
+}
