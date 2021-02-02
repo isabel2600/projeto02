@@ -16,6 +16,10 @@ Alterações comparadas com [exemplo anterior](../README.md):
 6) Variáveis de ambiente 
 7) Nome do volume montado
 
+<p align="center">
+  <img src="../images/08-docker-compose.png" width=50% height=50%>
+</p>
+
 ## Exemplo adicionando a UI do MongoExpress
 
 É possível adicionar mais quantos containers você desejar no seu **docker-compose.yaml**. Nesse exemplo adicionamos a UI do MongoDB, o MongoExpress.
