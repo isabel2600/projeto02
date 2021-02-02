@@ -74,7 +74,7 @@ Se você tiver alguma dúvida sobre variáveis de ambiente, volumes, releases di
 Garanta que os três arquivos desse diretório estão na raiz do seu projeto. Exemplo:
 
 <p align="center">
-  <img src="./images/06-directory.png" width=50% height=50%>
+  <img src="./images/06-directory.png" width=35% height=35%>
 </p>
 
 Para subir todo o ambiente basta utilizar um comando:
@@ -85,7 +85,7 @@ docker-compose up -d --build
 Se tudo der certo, provavelmente você verá uma mensagem do tipo:
 
 <p align="center">
-  <img src="./images/05-docker-compose.png" width=50% height=50%>
+  <img src="./images/05-docker-compose.png" width=65% height=65%>
 </p>
 
 Para o nosso exemplo, o app estará visível em
