@@ -6,10 +6,8 @@ sudo apt update && sudo apt -y upgrade
 sudo apt install -y rsync
 
 # Docker 
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
+curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
-su - $USER
 
 # Java 
 sudo apt -y install openjdk-11-jdk
@@ -31,6 +29,9 @@ mkdir ~/.kube
 sudo apt -y awscli
 aws --version
 aws configure
+
+# reboot
+sudo reboot
 
 # na sua maquina local execute
 # rsync -aAXvH --progress -e "ssh -i ec2.pem" ~/.kube/config usuario@ip:~/.kube/config
