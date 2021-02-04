@@ -26,7 +26,7 @@ sudo apt-get install -y kubectl
 mkdir ~/.kube
 
 # AWS CLI
-sudo apt -y awscli
+sudo apt install -y awscli
 aws --version
 aws configure
 
