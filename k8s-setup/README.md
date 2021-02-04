@@ -92,7 +92,7 @@ A mudança pode demorar até 24h, mas geralmente entre 30min e 2h é suficiente.
 É possível checar com o comando.
 
 ```
- dig ns ${DOMAIN}
+ dig ns ${DOMAIN} +short
 ```
 ### **5) Setup cluster**
 Se todas as variáveis de ambiente e acessos à AWS estiverem funcionando corretamente, o script **setup-cluster.sh** irá configurar todas as etapas dentro desse item 5.
@@ -164,7 +164,7 @@ Volte e execute "**kops create secret...**".
 #### **5.4) Deploy cluster**
 Para aplicar as configurações criadas utilize:
 ```
-kops update cluster --name ${DOMAIN} --yes
+kops update cluster --name ${DOMAIN} --yes --admin=87600h
 ```
 Você verá uma mensagem parecida com essa.
 <p align="center">
@@ -192,10 +192,12 @@ kubectl get nodes
 ## Editar configurações/update
 
 Se quiser editar alguma configuração ou fazer algum update, é recomendável **editar o arquivo YAML**. Mantendo suas mudanças documentadas e boas práticas de IaC.
-
+```
+kops get cluster -o yaml > cluster.yaml
+```
 Após a edição
 ```
-kubectl replace -f cluster.yaml
+kops replace -f cluster.yaml
 ```
 Para aplicar as mudanças
 ```
