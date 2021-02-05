@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:lts
 
 RUN mkdir -p /home/app
 
@@ -10,4 +10,4 @@ RUN npm install
 
 EXPOSE 3333
 
-CMD node server.js
+CMD ["node", "server.js"]
