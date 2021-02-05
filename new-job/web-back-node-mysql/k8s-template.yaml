@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: %JOB_NAME%-ns
+  name: %PROJECT_NAME%-ns
   labels: 
-    name: %JOB_NAME%-ns
+    name: %PROJECT_NAME%-ns
 
 ---
 
@@ -13,7 +13,7 @@ data:
 kind: Secret
 metadata:
   name: %JOB_NAME%-ecr-cred
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
 type: kubernetes.io/dockerconfigjson
 
 ---
@@ -22,9 +22,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: %JOB_NAME%-mysql-configmap
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
 data:
-  db_host: %JOB_NAME%-mysql-service.%JOB_NAME%-ns
+  db_host: %JOB_NAME%-mysql-service.%PROJECT_NAME%-ns
 
 ---
 
@@ -32,7 +32,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: %JOB_NAME%-mysql-secret
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
 type: Opaque
 data:
   username: dXNlcgo= # base64 = user
@@ -45,7 +45,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
      name: %JOB_NAME%-mysql-pvc
-     namespace: %JOB_NAME%-ns
+     namespace: %PROJECT_NAME%-ns
 spec:
      accessModes:
      - ReadWriteOnce
@@ -61,7 +61,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: %JOB_NAME%-mysql
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
   labels:
     app: %JOB_NAME%-mysql
 spec:
@@ -111,7 +111,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: %JOB_NAME%-mysql-service
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
 spec:
   selector:
     app: %JOB_NAME%-mysql
@@ -126,7 +126,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: %JOB_NAME%
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
   labels:
     app: %JOB_NAME%
 spec:
@@ -153,7 +153,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: %JOB_NAME%-service
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
 spec:
   selector:
     app: %JOB_NAME%
@@ -168,12 +168,12 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: %JOB_NAME%-ingress
-  namespace: %JOB_NAME%-ns
+  namespace: %PROJECT_NAME%-ns
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
   rules:
-    - host: %JOB_NAME%.luby.ml
+    - host: %DOMAIN_PREFIX%.%PROJECT_NAME%.%CLUSTER%
       http:
         paths:
           - path: 

@@ -11,7 +11,7 @@ pipeline {
     YAML_BUCKET = "s3://k8s-yaml.staging.luby.com.br"
     YAML_FILE = "${JOB_NAME}.yaml"
     SECRET_BUCKET = "s3://k8s-secrets.staging.luby.com.br"
-    DOMAIN_PREFIX = "api"   
+    DOMAIN_PREFIX = "web"   
   }
 
   agent {
@@ -53,6 +53,8 @@ pipeline {
     stage("Build") {
       steps {
         script {
+          sh "yarn install"
+          sh "yarn build"
           sh "docker build -t ${JOB_NAME} --no-cache --pull ."
         }
       }

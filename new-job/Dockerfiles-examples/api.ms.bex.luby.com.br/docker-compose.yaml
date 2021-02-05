@@ -1,0 +1,4 @@
+api-ms:
+  build: .
+  ports:
+    - "3359:3000"

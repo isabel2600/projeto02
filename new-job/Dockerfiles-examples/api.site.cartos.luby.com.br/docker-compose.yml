@@ -1,0 +1,6 @@
+api:
+  build: .
+  ports:
+    - "3351:8080"
+  command: npm start
+
