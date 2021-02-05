@@ -12,10 +12,8 @@ sudo usermod -aG docker $USER
 # Java 
 sudo apt -y install openjdk-11-jdk
 
-# Nodejs
-sudo apt -y install nodejs
-npm install -g npm@latest
-npm install -g yarn
+# jq
+sudo apt -y install jq
 
 # kubectl
 sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2 curl
