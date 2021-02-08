@@ -8,4 +8,4 @@
 
 ## Para todos
 
-- [Pipeline de CI/CD no ambiente de homologação da Luby](./new-job/) (documentação em desenvolvimento)
+- [Pipeline de CI/CD no ambiente de homologação da Luby](./new-pipeline-setup/) (documentação em desenvolvimento)
