@@ -1,0 +1,8 @@
+web:
+   build: .
+   command: npm start
+   ports:
+     - '3349:3349'
+   volumes:
+     - /projects/api.totum.luby.com.br:/projects/builds/api.totum.luby.com.br/
+     - /projects/api.totum.luby.com.br/public:/usr/src/app/public/
