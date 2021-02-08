@@ -348,3 +348,11 @@ Utilize:
 ```
 kops get clusters && kops export kubecfg --name ${DOMAIN}
 ```
+
+## Certificados SSL/TLS
+
+Para instalação do [cert-manager](https://cert-manager.io/docs/installation/kubernetes/) e deploy de todos os recursos necessários:
+
+```
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
+```
