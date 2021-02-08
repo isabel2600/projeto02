@@ -1,9 +1,0 @@
-web:
-   build: .
-   command: npm start
-   ports:
-     - '3343:6379'
-     - '3342:3333'
-   volumes:
-     - /projects/api.abbiamo.luby.com.br:/projects/builds/api.abbiamo.luby.com.br/
-     - /projects/api.abbiamo.luby.com.br/public:/usr/src/app/public/

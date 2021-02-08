@@ -1,6 +1,0 @@
-api:
-  build: .
-  ports:
-    - "3350:3000"
-  command: npm run dev
-

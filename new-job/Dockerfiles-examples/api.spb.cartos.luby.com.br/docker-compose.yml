@@ -1,6 +1,0 @@
-web:
-  build: .
-  ports:
-    - '3334:3334'
-    - '9229:9229'
-  command: npm start
