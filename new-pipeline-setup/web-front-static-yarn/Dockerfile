@@ -1,4 +1,4 @@
-FROM node:lts
+FROM node:lts AS build
 RUN mkdir -p /home/app
 COPY . /home/app
 WORKDIR /home/app
@@ -7,4 +7,4 @@ RUN yarn install && \
 
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html/
-COPY --from=0 ./home/app/build/ .
+COPY --from=build /home/app/build/ .

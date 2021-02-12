@@ -8,9 +8,9 @@ pipeline {
     REGION = "us-east-1"
     CLUSTER = "staging.luby.com.br"
     DOCKER_USER = "AWS"
-    YAML_BUCKET = "s3://k8s-yaml.staging.luby.com.br"
     YAML_FILE = "k8s-${JOB_NAME}.yaml"
-    SECRET_BUCKET = "s3://k8s-secrets.staging.luby.com.br"
+    YAML_BUCKET = "s3://k8s-yaml.${CLUSTER}"
+    SECRET_BUCKET = "s3://k8s-secrets.${CLUSTER}"
   }
 
   agent {
@@ -32,7 +32,7 @@ pipeline {
       }
     }
 
-    stage('Check package-lock.json') {
+    stage('Check package-lock.json and node-modules') {
       steps {
         script {
           sh '''
@@ -40,6 +40,12 @@ pipeline {
                 rm package-lock.json
             else 
                 echo "Nenhum package-lock.json no repositorio."
+            fi
+
+            if [ -d node-modules/ ]; then
+                rm -r node-modules/
+            else 
+                echo "O diretorio node-modules nao existe."
             fi
             '''
         }

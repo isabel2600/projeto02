@@ -5,13 +5,9 @@
 .env.example
 README.md
 
-package-lock.json
-
 .dockerignore
 Jenkinsfile
 Dockerfile
 Jenkinsfile
 lifecycle-policy.json
 k8s-*.yaml
-
-devops
