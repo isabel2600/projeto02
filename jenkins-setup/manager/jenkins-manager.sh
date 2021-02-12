@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
+
+# update and upgrade 
 sudo apt update && sudo apt -y upgrade
 
 # Java
@@ -22,18 +25,19 @@ sudo ln -s /etc/nginx/sites-available/jenkins.conf /etc/nginx/sites-enabled/jenk
 sudo service nginx configtest
 sudo service nginx restart
 
-# NGINX (stable release)
-# sudo apt install -y curl gnupg2 ca-certificates lsb-release
-# echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" | sudo tee /etc/apt/sources.list.d/nginx.list
-# curl -fsSL https://nginx.org/keys/nginx_signing.key | sudo apt-key add -
-# sudo apt-key fingerprint ABF5BD827BD9BF62
-# sudo apt update
-# sudo apt install -y nginx
+# SSL/TLS 
+sudo apt update && sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d jenkins.staging.luby.com.br
+sudo service nginx configtest
+sudo service nginx restart
 
-# TO DO
-# para utilizar o repositorio do nginx e preciso adicionar a linha 
-# include /etc/nginx/sites-enabled/*;
-# no bloco http {} dentro da /etc/nginx/nginx.conf
+# AWS CLI
+sudo apt install -y awscli
+aws --version
+aws configure
 
-# o repositorio do ubuntu ja vem com a configuracao
-# de sites enabled/availabe para imitar o apache
+# backup 
+# obs: verificar o fuso horario do servidor
+sudo chmod +x backup-jenkins
+sudo cp backup-jenkins /usr/local/bin
+(crontab -l ; echo "0 6 * * * backup-jenkins") | crontab -

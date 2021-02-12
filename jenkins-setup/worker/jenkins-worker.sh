@@ -1,5 +1,8 @@
-#!/bin/bash
+#!/bin/bash -c "set -eo pipefail"
 
+set -eo pipefail
+
+# update repos and upgrade OS
 sudo apt update && sudo apt -y upgrade
 
 # rsync

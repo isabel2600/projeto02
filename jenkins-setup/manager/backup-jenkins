@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -eo pipefail
+
+export DATE=$(date +"%d-%m-%Y")
+export BACKUP_DIR=/home/ubuntu/backup
+export BACKUP_FILE="$DATE.tar.gz"
+export JENKINS_HOME=/var/lib/jenkins
+export AWS_BUCKET=s3://backup-jekins.staging.luby.com.br
+export OLD_DATE=$(date +"%d-%m-%Y" --date="3 days ago")
+export OLD_BACKUP_FILE="$OLD_DATE.tar.gz"
+
+if [ -d $BACKUP_DIR ]; then
+    echo "O diretorio backup ja existe"
+else
+    echo "O diretorio backup nao existe. Criando..."
+    mkdir $BACKUP_DIR
+fi
+
+sudo tar -czvf $BACKUP_DIR/$BACKUP_FILE $JENKINS_HOME
+
+if aws s3 ls | grep $AWS_BUCKET >/dev/null 2>&1 ; then
+    aws s3 cp $BACKUP_DIR/$BACKUP_FILE $AWS_BUCKET/$BACKUP_FILE
+else
+    aws s3 mb $AWS_BUCKET
+    aws s3 cp $BACKUP_DIR/$BACKUP_FILE $AWS_BUCKET/$BACKUP_FILE
+fi
+
+if aws s3 ls $AWS_BUCKET | grep $OLD_BACKUP_FILE >/dev/null 2>&1 ; then
+    echo "Backup antigo econtrado no bucket. Apagando..."
+    aws s3 rm $AWS_BUCKET/$OLD_BACKUP_FILE
+else
+    echo "Backup antigo nao encontrado no bucket"
+fi
+
+if [ -f $BACKUP_DIR/$OLD_BACKUP_FILE ]; then
+    echo "Backup antigo econtrado no local. Apagando..." 
+    sudo rm $BACKUP_DIR/$OLD_BACKUP_FILE
+else
+    echo "Backup antigo nao encontrado na maquina local."
+fi
