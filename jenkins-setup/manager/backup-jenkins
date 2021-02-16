@@ -6,7 +6,7 @@ export DATE=$(date +"%d-%m-%Y")
 export BACKUP_DIR=/home/ubuntu/backup
 export BACKUP_FILE="$DATE.tar.gz"
 export JENKINS_HOME=/var/lib/jenkins
-export AWS_BUCKET=s3://backup-jekins.staging.luby.com.br
+export AWS_BUCKET=s3://backup-jenkins.staging.luby.com.br
 export OLD_DATE=$(date +"%d-%m-%Y" --date="3 days ago")
 export OLD_BACKUP_FILE="$OLD_DATE.tar.gz"
 
