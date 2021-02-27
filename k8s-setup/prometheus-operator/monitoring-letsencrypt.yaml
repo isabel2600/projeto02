@@ -1,0 +1,51 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: grafana-letsencrypt
+  namespace: monitoring
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: joao.tartaglia@luby.software
+    privateKeySecretRef:
+      name: grafana-tls
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: prometheus-letsencrypt
+  namespace: monitoring
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: joao.v.tartaglia@gmail.com
+    privateKeySecretRef:
+      name: prometheus-tls
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: alertmanager-letsencrypt
+  namespace: monitoring
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: joao.v.tartaglia@ufv.br
+    privateKeySecretRef:
+      name: alertmanager-tls
+    solvers:
+    - http01:
+        ingress:
+          class: nginx

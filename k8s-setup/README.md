@@ -356,3 +356,21 @@ Para instalação do [cert-manager](https://cert-manager.io/docs/installation/ku
 ```
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
 ```
+
+## Prometheus + Grafana monitoring
+
+```
+curl -fsSL https://raw.githubusercontent.com/prometheus-community/helm-charts/main/charts/kube-prometheus-stack/values.yaml -o values.yaml
+```
+
+```
+kubectl create namespace monitoring
+```
+
+```
+helm install monitoring prometheus-community/kube-prometheus-stack --namespace monitoring -f values.yaml
+```
+
+```
+kubectl get secret monitoring-grafana -n monitoring -o yaml > grafana-secret.yaml
+```

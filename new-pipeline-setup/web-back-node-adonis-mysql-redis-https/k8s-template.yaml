@@ -1,0 +1,268 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: %PROJECT_NAME%-ns
+  labels: 
+    name: %PROJECT_NAME%-ns
+
+---
+
+apiVersion: v1
+data:
+  .dockerconfigjson: %ECR_CRED%
+kind: Secret
+metadata:
+  name: %JOB_NAME%-ecr-cred
+  namespace: %PROJECT_NAME%-ns
+type: kubernetes.io/dockerconfigjson
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: %JOB_NAME%-mysql-configmap
+  namespace: %PROJECT_NAME%-ns
+data:
+  db_host: %JOB_NAME%-mysql-service.%PROJECT_NAME%-ns
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: %JOB_NAME%-mysql-secret
+  namespace: %PROJECT_NAME%-ns
+type: Opaque
+data:
+  username: bHVieVRlc3QK # base64 = lubyTest
+  password: bHVieVRlc3QyMDIxCg== # base64 = lubyTest2021
+  root_password: YWRtaW4K # base64 = admin
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: %JOB_NAME%-mysql-pvc
+     namespace: %PROJECT_NAME%-ns
+spec:
+     accessModes:
+     - ReadWriteOnce
+     volumeMode: Filesystem
+     resources:
+       requests:
+         storage: 1Gi
+     storageClassName: default-storage-class
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: %JOB_NAME%-mysql
+  namespace: %PROJECT_NAME%-ns
+  labels:
+    app: %JOB_NAME%-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: %JOB_NAME%-mysql
+  template:
+    metadata:
+      labels:
+        app: %JOB_NAME%-mysql
+    spec:
+      containers:
+      - name: %JOB_NAME%-mysql
+        image: mysql
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: %JOB_NAME%-mysql-data
+          mountPath: /var/lib/mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: %JOB_NAME%-mysql-secret
+              key: root_password
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: %JOB_NAME%-mysql-secret
+              key: username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: %JOB_NAME%-mysql-secret
+              key: password
+        - name: MYSQL_DATABASE
+          value: timesheet
+      volumes:
+        - name: %JOB_NAME%-mysql-data
+          persistentVolumeClaim:
+            claimName: %JOB_NAME%-mysql-pvc
+              
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: %JOB_NAME%-mysql-service
+  namespace: %PROJECT_NAME%-ns
+spec:
+  selector:
+    app: %JOB_NAME%-mysql
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+     name: %JOB_NAME%-redis-pvc
+     namespace: %PROJECT_NAME%-ns
+spec:
+     accessModes:
+     - ReadWriteOnce
+     volumeMode: Filesystem
+     resources:
+       requests:
+         storage: 1Gi
+     storageClassName: default-storage-class
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: %JOB_NAME%-redis
+  namespace: %PROJECT_NAME%-ns
+  labels:
+    app: %JOB_NAME%-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: %JOB_NAME%-redis
+  template:
+    metadata:
+      labels:
+        app: %JOB_NAME%-redis
+    spec:
+      containers:
+      - name: %JOB_NAME%-redis
+        image: redis
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: %JOB_NAME%-redis-data
+          mountPath: /var/lib/redis
+      volumes:
+        - name: %JOB_NAME%-redis-data
+          persistentVolumeClaim:
+            claimName: %JOB_NAME%-redis-pvc
+              
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: %JOB_NAME%-redis-service
+  namespace: %PROJECT_NAME%-ns
+spec:
+  selector:
+    app: %JOB_NAME%-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: %JOB_NAME%
+  namespace: %PROJECT_NAME%-ns
+  labels:
+    app: %JOB_NAME%
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: %JOB_NAME%
+  template:
+    metadata:
+      labels:
+        app: %JOB_NAME%
+    spec:
+      containers:
+      - name: %JOB_NAME%
+        image: %REGISTRY%/%JOB_NAME%:%BUILD_NUMBER%
+        ports:
+        - containerPort: 3333
+      imagePullSecrets:
+      - name: %JOB_NAME%-ecr-cred
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: %JOB_NAME%-service
+  namespace: %PROJECT_NAME%-ns
+spec:
+  selector:
+    app: %JOB_NAME%
+  ports:
+    - protocol: TCP
+      port: 3333
+      targetPort: 3333
+
+---
+
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: %JOB_NAME%-letsencrypt
+  namespace: %PROJECT_NAME%-ns
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: joao.tartaglia@luby.software
+    privateKeySecretRef:
+      name: %JOB_NAME%-tls
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+
+---
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: %JOB_NAME%-ingress
+  namespace: %PROJECT_NAME%-ns
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/issuer: "%JOB_NAME%-letsencrypt"
+spec:
+  tls:
+  - hosts:
+    - %DOMAIN_PREFIX%.%PROJECT_NAME%.%CLUSTER%
+    secretName: %JOB_NAME%-tls
+  rules:
+    - host: %DOMAIN_PREFIX%.%PROJECT_NAME%.%CLUSTER%
+      http:
+        paths:
+          - path: 
+            backend:
+              serviceName: %JOB_NAME%-service
+              servicePort: 3333
