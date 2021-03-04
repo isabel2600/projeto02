@@ -1,18 +1,18 @@
-FROM node:lts
+    FROM node:latest
 
-RUN mkdir -p /home/app
+    RUN mkdir -p /home/app
 
-COPY . /home/app
+    COPY . /home/app
 
-WORKDIR /home/app
+    WORKDIR /home/app
 
-RUN npm i -g @adonisjs/cli \
-    && npm i --save pg sqlite3 mysql @adonisjs/ignitor \
-    && npm install
+    RUN npm i -g @adonisjs/cli && \
+        npm i --save pg sqlite3 mysql @adonisjs/ignitor && \
+        npm install
 
-# RUN adonis migration:run
+    RUN adonis migration:run && \
+        adonis seed
 
-EXPOSE 3333
+    EXPOSE 3333
 
-CMD [ "npm", "start"]
-
+    CMD [ "npm", "start"]
