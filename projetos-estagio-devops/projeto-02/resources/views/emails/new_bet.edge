@@ -1,0 +1,15 @@
+<strong>
+  Você fez uma nova aposta
+</strong>
+<p>
+  Uma nova aposta foi realizada com o seu usuário e e-mail ({{ email }}). Se você não foi o autor dessa requisição, seria legal trocar a sua senha para garantir.
+</p>
+<br />
+<p>
+  Suas novas apostas (números escolhidos):
+  <ul>
+    @each(bet in betsData)
+      <li>{{ bet.numbers }}</li>
+    @endeach
+  </ul>
+</p>
