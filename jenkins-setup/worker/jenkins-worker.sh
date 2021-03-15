@@ -31,6 +31,12 @@ sudo apt install -y awscli
 aws --version
 aws configure
 
+# sonar scanner
+sudo apt install -y unzip && \
+curl -fsSL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.0.2311-linux.zip > sonar-scanner.zip && \
+sudo unzip sonar-scanner.zip -d /usr/local/bin && \
+sudo mv /usr/local/bin/sonar-scanner-4.6.0.2311-linux /usr/local/bin/sonar-scanner
+
 # reboot
 sudo reboot
 
