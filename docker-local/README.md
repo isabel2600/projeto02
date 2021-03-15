@@ -11,7 +11,7 @@ Esse README será bem direto ao ponto. Para uma introdução e uma explicação 
 ### Ubuntu/Debian
 ```
 # Docker 
-curl -fsSL https://get.docker.com -o get-docker.sh | sh && \
+curl -fsSL https://get.docker.com | sh && \
 sudo usermod -aG docker $USER && \
 sudo reboot
 
