@@ -1,4 +1,4 @@
-FROM node:lts AS build
+FROM node:latest AS build
 RUN mkdir -p /home/app
 COPY . /home/app
 WORKDIR /home/app
