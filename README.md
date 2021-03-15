@@ -5,6 +5,8 @@
 ## Para sys admins
 - [Setup do Jenkins](./jenkins-setup/)
 - [Setup e deploy de cluster Kubernetes](./k8s-setup/)
+- [Setup do SonarQube](./sonarqube-setup/)
+- [Setup de Wordpress com Docker + NGINX + SSL](./wordpress-setup/)
 
 ## Para todos
 
