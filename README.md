@@ -11,3 +11,7 @@
 ## Para todos
 
 - [Pipeline de CI/CD no ambiente de homologação da Luby](./new-pipeline-setup/)
+
+## Programa de estágio DevOps
+
+- [Projetos](./projetos-estagio-devops/)
